@@ -26,7 +26,7 @@ namespace Arriba.Security.OAuth
                 ValidateLifetime = true,
                 ValidateAudience = true,
                 ValidateIssuer = true,
-                ValidIssuer = "https://sts.windows.net/c3611820-5bdd-4423-a1fc-18834a47ae78/",
+                ValidIssuer = config.Issuer,
                 IssuerSigningKeys = Config.SigningKeys,
                 SignatureValidator = this.ValidateSignature
             };
