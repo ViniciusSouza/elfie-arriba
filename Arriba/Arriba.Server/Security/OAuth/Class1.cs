@@ -15,11 +15,14 @@ namespace Arriba.Security.OAuth
     public class AzureJwtTokenFactory
     {
         private OpenIdConnectConfiguration Config { get; }
+        
+        private IOAuthConfig OAuthConfig { get; }
 
         public TokenValidationParameters TokenValidationParameters { get; }
 
-        private AzureJwtTokenFactory(OpenIdConnectConfiguration config)
+        private AzureJwtTokenFactory(IOAuthConfig oauthConfig, OpenIdConnectConfiguration config)
         {
+            this.OAuthConfig = oauthConfig;
             Config = config;
             TokenValidationParameters = new TokenValidationParameters()
             {
@@ -34,7 +37,7 @@ namespace Arriba.Security.OAuth
 
         public void Configure(JwtBearerOptions options)
         {
-            options.Audience = "00000003-0000-0000-c000-000000000000";
+            options.Audience = OAuthConfig.AudienceId;
             options.TokenValidationParameters = this.TokenValidationParameters;
         }
 
@@ -55,14 +58,14 @@ namespace Arriba.Security.OAuth
             return !String.Equals(issuer1, issuer2, StringComparison.OrdinalIgnoreCase);
         }
 
-        public static async Task<AzureJwtTokenFactory> CreateAsync(OAuthConfig authConfig)
+        public static async Task<AzureJwtTokenFactory> CreateAsync(IOAuthConfig authConfig)
         {
-            string stsDiscoveryEndpoint = $"https://login.microsoftonline.com/{authConfig.TenantId}/.well-known/openid-configuration";
+            string stsDiscoveryEndpoint = $"https://login.microsoftonline.com/{authConfig.TenantId}/v2.0/.well-known/openid-configuration";
 
             var configManager = new ConfigurationManager<OpenIdConnectConfiguration>(stsDiscoveryEndpoint, new OpenIdConnectConfigurationRetriever());
 
             var config = await configManager.GetConfigurationAsync();
-            return new AzureJwtTokenFactory(config);
+            return new AzureJwtTokenFactory(authConfig, config);
         }
     }
 }
