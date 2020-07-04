@@ -9,10 +9,10 @@ namespace Arriba.Configuration
         public OAuthConfig()
         {
             this.RedirectUrl = "http://localhost:42784/api/oauth/auth-code";
-            this.TenantId = "c3611820-5bdd-4423-a1fc-18834a47ae78";
-            this.AudienceId = "051ef594-8e5a-4156-a8ce-93fae3220779";
+            this.TenantId = "72f988bf-86f1-41af-91ab-2d7cd011db47";
+            this.AudienceId = "ae4ffb67-b66b-4b8f-907b-9e64e5249199";
             this.Prompt = "login";
-            this.Scopes = new[] { "openid" };
+            this.Scopes = new[] { "openid", $"{this.AudienceId}/.default" };
         }
 
         public string TenantId { get; }
