@@ -76,9 +76,14 @@ namespace Arriba.Server
                                             });
                 });
 
+
                 var azureTokens = AzureJwtTokenFactory.CreateAsync(new OAuthConfig()).Result;
-                services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                    .AddJwtBearer(azureTokens.Configure);
+                services.AddAuthentication(options =>
+                {
+                    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                }).AddCookie()
+                .AddJwtBearer(azureTokens.Configure);
 
                 var jwtBearerPolicy = new AuthorizationPolicyBuilder()
                    .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
