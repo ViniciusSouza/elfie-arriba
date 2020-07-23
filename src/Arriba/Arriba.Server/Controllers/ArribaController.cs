@@ -1,6 +1,9 @@
 ﻿using Arriba.Communication.Server.Application;
+using Arriba.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace Arriba.Server.Controllers
 {
@@ -45,6 +48,21 @@ namespace Arriba.Server.Controllers
             return Ok($"Table {tableName} unloaded");
         }
 
+        [HttpPost]
+        public IActionResult PostCreateNewTable([Required]CreateTableRequest table)
+        {
+            try
+            {
+                _arribaManagement.CreateTableForUser(table, this.User);
+            }catch(Exception ex)
+            {
+                if (ex is ArribaAccessForbiddenException)
+                    return Forbid();
 
+                return BadRequest(ex.Message);
+            }
+
+            return CreatedAtAction(nameof(PostCreateNewTable), null);
+        }
     }
 }
