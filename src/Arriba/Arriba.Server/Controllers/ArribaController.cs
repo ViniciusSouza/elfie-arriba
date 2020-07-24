@@ -1,8 +1,11 @@
 ﻿using Arriba.Communication.Server.Application;
+using Arriba.Model.Column;
 using Arriba.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Arriba.Server.Controllers
@@ -63,6 +66,30 @@ namespace Arriba.Server.Controllers
             }
 
             return CreatedAtAction(nameof(PostCreateNewTable), null);
+        }
+
+        [HttpPost("table/{tableName}/addcolumns")]
+        public IActionResult PostAddColumn(string tableName, [FromBody, Required] IList<ColumnDetails> columnDetails)
+        {
+
+            try
+            {
+                _arribaManagement.AddColumnsToTableForUser(tableName, columnDetails, this.User);
+            }
+            catch (Exception ex)
+            {
+                if (ex is ArribaAccessForbiddenException)
+                    return Forbid();
+
+                if (ex is TableNotFoundException)
+                    return NotFound(ex.Message);
+
+                return BadRequest(ex.Message);
+
+            }
+
+            return CreatedAtAction(nameof(PostAddColumn), "Columns Added");
+
         }
     }
 }
