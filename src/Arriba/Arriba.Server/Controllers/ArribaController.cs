@@ -1,4 +1,5 @@
 ﻿using Arriba.Communication.Server.Application;
+using Arriba.Model;
 using Arriba.Model.Column;
 using Arriba.Types;
 using Microsoft.AspNetCore.Authorization;
@@ -91,6 +92,20 @@ namespace Arriba.Server.Controllers
                 return NotFound(ex.Message);
 
             return BadRequest(ex.Message);
+        }
+
+        [HttpGet("/table/{tableName}/save")]
+        public IActionResult GetSaveTable(string tableName)
+        {
+            try
+            {
+                _arribaManagement.SaveTableForUser(tableName, this.User, VerificationLevel.Normal);
+            }
+            catch (Exception ex)
+            {
+                return ExceptionToActionResult(ex);
+            }
+            return Ok("Saved");
         }
 
     }
