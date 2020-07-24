@@ -122,5 +122,20 @@ namespace Arriba.Server.Controllers
             return Ok("Reloaded");
         }
 
+        [HttpDelete("/table/{tableName}")]
+        [HttpGet("/table/{tableName}/delete")]
+        public IActionResult DeleteTable(string tableName)
+        {
+            try
+            {
+                _arribaManagement.DeleteTableForUser(tableName, this.User);
+            }
+            catch (Exception ex)
+            {
+                return ExceptionToActionResult(ex);
+            }
+            return Ok("Deleted");
+        }
+
     }
 }
