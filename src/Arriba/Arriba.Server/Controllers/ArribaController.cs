@@ -108,5 +108,19 @@ namespace Arriba.Server.Controllers
             return Ok("Saved");
         }
 
+        [HttpGet("/table/{tableName}/reload")]
+        public IActionResult GetReloadTable(string tableName)
+        {
+            try
+            {
+                _arribaManagement.ReloadTableForUser(tableName, this.User);
+            }
+            catch (Exception ex)
+            {
+                return ExceptionToActionResult(ex);
+            }
+            return Ok("Reloaded");
+        }
+
     }
 }
