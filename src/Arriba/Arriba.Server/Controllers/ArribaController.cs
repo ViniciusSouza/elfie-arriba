@@ -59,10 +59,7 @@ namespace Arriba.Server.Controllers
                 _arribaManagement.CreateTableForUser(table, this.User);
             }catch(Exception ex)
             {
-                if (ex is ArribaAccessForbiddenException)
-                    return Forbid();
-
-                return BadRequest(ex.Message);
+                return ExceptionToActionResult(ex);
             }
 
             return CreatedAtAction(nameof(PostCreateNewTable), null);
@@ -78,18 +75,23 @@ namespace Arriba.Server.Controllers
             }
             catch (Exception ex)
             {
-                if (ex is ArribaAccessForbiddenException)
-                    return Forbid();
-
-                if (ex is TableNotFoundException)
-                    return NotFound(ex.Message);
-
-                return BadRequest(ex.Message);
-
+                return ExceptionToActionResult(ex);
             }
 
             return CreatedAtAction(nameof(PostAddColumn), "Columns Added");
 
         }
+
+        private IActionResult ExceptionToActionResult(Exception ex)
+        {
+            if (ex is ArribaAccessForbiddenException)
+                return Forbid();
+
+            if (ex is TableNotFoundException)
+                return NotFound(ex.Message);
+
+            return BadRequest(ex.Message);
+        }
+
     }
 }
