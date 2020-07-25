@@ -143,5 +143,23 @@ namespace Arriba.Server.Controllers
             return Ok("Deleted");
         }
 
+        // {POST | GET} /table/foo?action=delete
+        [HttpPost("table/{tableName}")]
+        [HttpGet("table/{tableName}")]
+        public IActionResult PostDeleteTableRows(string tableName, [FromQuery, Required] string action, [FromQuery, Required] string q)
+        {
+            if (action != "delete")
+                return BadRequest($"Action {action} not supported");
+
+            try
+            {
+                var result = _arribaManagement.DeleteTableRowsForUser(tableName, q, this.User);
+                return Ok(result.Count);
+            }
+            catch (Exception ex)
+            {
+                return ExceptionToActionResult(ex);
+            }
+        }
     }
 }
