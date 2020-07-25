@@ -8,6 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Net;
 
 namespace Arriba.Server.Controllers
 {
@@ -15,11 +16,13 @@ namespace Arriba.Server.Controllers
     [ApiController]
     public class ArribaController : ControllerBase
     {
-       private readonly IArribaManagementService _arribaManagement;
+        private readonly IArribaManagementService _arribaManagement;
+        private readonly IArribaServerConfiguration _arribaServerConfiguration;
 
-        public ArribaController(IArribaManagementService arribaManagement)
+        public ArribaController(IArribaManagementService arribaManagement, IArribaServerConfiguration arribaServerConfiguration)
         {
             _arribaManagement = arribaManagement;
+            _arribaServerConfiguration = arribaServerConfiguration;
         }
 
         [HttpGet]
@@ -86,7 +89,10 @@ namespace Arriba.Server.Controllers
         private IActionResult ExceptionToActionResult(Exception ex)
         {
             if (ex is ArribaAccessForbiddenException)
-                return Forbid();
+                if(_arribaServerConfiguration.EnabledAuthentication) 
+                    return Forbid();
+                else
+                    return new StatusCodeResult((int)HttpStatusCode.Forbidden);
 
             if (ex is TableNotFoundException)
                 return NotFound(ex.Message);
