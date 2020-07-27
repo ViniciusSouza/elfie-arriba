@@ -1,6 +1,7 @@
 ﻿using Arriba.Communication.Server.Application;
 using Arriba.Model;
 using Arriba.Model.Column;
+using Arriba.Model.Security;
 using Arriba.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -89,7 +90,7 @@ namespace Arriba.Server.Controllers
         private IActionResult ExceptionToActionResult(Exception ex)
         {
             if (ex is ArribaAccessForbiddenException)
-                if(_arribaServerConfiguration.EnabledAuthentication) 
+                if (_arribaServerConfiguration.EnabledAuthentication)
                     return Forbid();
                 else
                     return new StatusCodeResult((int)HttpStatusCode.Forbidden);
@@ -160,6 +161,22 @@ namespace Arriba.Server.Controllers
             {
                 return ExceptionToActionResult(ex);
             }
+        }
+
+        [HttpPost("table/{tableName}/permissions/{scope}")]
+        public IActionResult PostGrantTableAccess([FromQuery, Required] string tableName,
+            [FromQuery, Required] PermissionScope scope,
+            [FromBody, Required] SecurityIdentity identity)
+        {
+            try
+            {
+                _arribaManagement.GrantAccessForUser(tableName, identity, scope, this.User);
+            }
+            catch (Exception ex)
+            {
+                return ExceptionToActionResult(ex);
+            }
+            return Ok("Granted");
         }
     }
 }
