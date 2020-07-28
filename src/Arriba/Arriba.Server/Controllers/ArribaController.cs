@@ -178,5 +178,22 @@ namespace Arriba.Server.Controllers
             }
             return Ok("Granted");
         }
+
+        [HttpDelete("table/{tableName}/permissions/{scope}")]
+        public IActionResult DeleteRevokeTableAccess([FromQuery, Required] string tableName,
+            [FromQuery, Required] PermissionScope scope,
+            [FromBody, Required] SecurityIdentity identity)
+        {
+            try
+            {
+                _arribaManagement.RevokeAccessForUser(tableName, identity, scope, this.User);
+            }
+            catch (Exception ex)
+            {
+                return ExceptionToActionResult(ex);
+            }
+            return Ok("Granted");
+        }
+
     }
 }
