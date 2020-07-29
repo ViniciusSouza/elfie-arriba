@@ -1,6 +1,7 @@
 ﻿using Arriba.Communication.Server.Application;
 using Arriba.Model;
 using Arriba.Model.Column;
+using Arriba.Model.Query;
 using Arriba.Model.Security;
 using Arriba.Types;
 using Microsoft.AspNetCore.Authorization;
@@ -10,6 +11,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
+using System.Runtime.CompilerServices;
 
 namespace Arriba.Server.Controllers
 {
@@ -24,6 +26,19 @@ namespace Arriba.Server.Controllers
         {
             _arribaManagement = arribaManagement;
             _arribaServerConfiguration = arribaServerConfiguration;
+        }
+
+        private IActionResult ExecuteAction(Action action, Func<IActionResult> result)
+        {
+            try
+            {
+                action();
+            }
+            catch (Exception ex)
+            {
+                return ExceptionToActionResult(ex);
+            }
+            return result();
         }
 
         [HttpGet]
