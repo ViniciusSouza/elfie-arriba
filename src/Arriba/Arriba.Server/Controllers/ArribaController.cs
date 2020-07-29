@@ -42,7 +42,7 @@ namespace Arriba.Server.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetTables ()
+        public IActionResult GetTables()
         {
             return Ok(_arribaManagement.GetTables());
         }
@@ -62,7 +62,7 @@ namespace Arriba.Server.Controllers
             return Ok($"All tables unloaded");
         }
 
-        [HttpGet("{tableName}/unload")]
+        [HttpGet("table/{tableName}/unload")]
         public IActionResult GetUnloadTable(string tableName)
         {
             if (!_arribaManagement.UnloadTableForUser(tableName, this.User))
@@ -71,8 +71,8 @@ namespace Arriba.Server.Controllers
             return Ok($"Table {tableName} unloaded");
         }
 
-        [HttpPost]
-        public IActionResult PostCreateNewTable([Required]CreateTableRequest table)
+        [HttpPost("table")]
+        public IActionResult PostCreateNewTable([Required] CreateTableRequest table)
         {
             return ExecuteAction(() => _arribaManagement.CreateTableForUser(table, this.User),
                           () => CreatedAtAction(nameof(PostCreateNewTable), null));
@@ -99,14 +99,14 @@ namespace Arriba.Server.Controllers
             return BadRequest(ex.Message);
         }
 
-        [HttpGet("/table/{tableName}/save")]
+        [HttpGet("table/{tableName}/save")]
         public IActionResult GetSaveTable(string tableName)
         {
             return ExecuteAction(() => _arribaManagement.SaveTableForUser(tableName, this.User, VerificationLevel.Normal),
                           () => Ok("Saved"));
         }
 
-        [HttpGet("/table/{tableName}/reload")]
+        [HttpGet("table/{tableName}/reload")]
         public IActionResult GetReloadTable(string tableName)
         {
 
@@ -114,8 +114,8 @@ namespace Arriba.Server.Controllers
                           () => Ok("Reloaded"));
         }
 
-        [HttpDelete("/table/{tableName}")]
-        [HttpGet("/table/{tableName}/delete")]
+        [HttpDelete("table/{tableName}")]
+        [HttpGet("table/{tableName}/delete")]
         public IActionResult DeleteTable(string tableName)
         {
             return ExecuteAction(() => _arribaManagement.DeleteTableForUser(tableName, this.User),
