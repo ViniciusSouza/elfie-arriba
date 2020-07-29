@@ -74,32 +74,15 @@ namespace Arriba.Server.Controllers
         [HttpPost]
         public IActionResult PostCreateNewTable([Required]CreateTableRequest table)
         {
-            try
-            {
-                _arribaManagement.CreateTableForUser(table, this.User);
-            }catch(Exception ex)
-            {
-                return ExceptionToActionResult(ex);
-            }
-
-            return CreatedAtAction(nameof(PostCreateNewTable), null);
+            return ExecuteAction(() => _arribaManagement.CreateTableForUser(table, this.User),
+                          () => CreatedAtAction(nameof(PostCreateNewTable), null));
         }
 
         [HttpPost("table/{tableName}/addcolumns")]
         public IActionResult PostAddColumn(string tableName, [FromBody, Required] IList<ColumnDetails> columnDetails)
         {
-
-            try
-            {
-                _arribaManagement.AddColumnsToTableForUser(tableName, columnDetails, this.User);
-            }
-            catch (Exception ex)
-            {
-                return ExceptionToActionResult(ex);
-            }
-
-            return CreatedAtAction(nameof(PostAddColumn), "Columns Added");
-
+            return ExecuteAction(() => _arribaManagement.AddColumnsToTableForUser(tableName, columnDetails, this.User),
+                          () => CreatedAtAction(nameof(PostAddColumn), "Columns Added"));
         }
 
         private IActionResult ExceptionToActionResult(Exception ex)
@@ -119,44 +102,24 @@ namespace Arriba.Server.Controllers
         [HttpGet("/table/{tableName}/save")]
         public IActionResult GetSaveTable(string tableName)
         {
-            try
-            {
-                _arribaManagement.SaveTableForUser(tableName, this.User, VerificationLevel.Normal);
-            }
-            catch (Exception ex)
-            {
-                return ExceptionToActionResult(ex);
-            }
-            return Ok("Saved");
+            return ExecuteAction(() => _arribaManagement.SaveTableForUser(tableName, this.User, VerificationLevel.Normal),
+                          () => Ok("Saved"));
         }
 
         [HttpGet("/table/{tableName}/reload")]
         public IActionResult GetReloadTable(string tableName)
         {
-            try
-            {
-                _arribaManagement.ReloadTableForUser(tableName, this.User);
-            }
-            catch (Exception ex)
-            {
-                return ExceptionToActionResult(ex);
-            }
-            return Ok("Reloaded");
+
+            return ExecuteAction(() => _arribaManagement.ReloadTableForUser(tableName, this.User),
+                          () => Ok("Reloaded"));
         }
 
         [HttpDelete("/table/{tableName}")]
         [HttpGet("/table/{tableName}/delete")]
         public IActionResult DeleteTable(string tableName)
         {
-            try
-            {
-                _arribaManagement.DeleteTableForUser(tableName, this.User);
-            }
-            catch (Exception ex)
-            {
-                return ExceptionToActionResult(ex);
-            }
-            return Ok("Deleted");
+            return ExecuteAction(() => _arribaManagement.DeleteTableForUser(tableName, this.User),
+                          () => Ok("Deleted"));
         }
 
         // {POST | GET} /table/foo?action=delete
@@ -167,15 +130,10 @@ namespace Arriba.Server.Controllers
             if (action != "delete")
                 return BadRequest($"Action {action} not supported");
 
-            try
-            {
-                var result = _arribaManagement.DeleteTableRowsForUser(tableName, q, this.User);
-                return Ok(result.Count);
-            }
-            catch (Exception ex)
-            {
-                return ExceptionToActionResult(ex);
-            }
+            DeleteResult result = null;
+
+            return ExecuteAction(() => result = _arribaManagement.DeleteTableRowsForUser(tableName, q, this.User),
+                           () => Ok(result.Count));
         }
 
         [HttpPost("table/{tableName}/permissions/{scope}")]
@@ -183,15 +141,8 @@ namespace Arriba.Server.Controllers
             [FromQuery, Required] PermissionScope scope,
             [FromBody, Required] SecurityIdentity identity)
         {
-            try
-            {
-                _arribaManagement.GrantAccessForUser(tableName, identity, scope, this.User);
-            }
-            catch (Exception ex)
-            {
-                return ExceptionToActionResult(ex);
-            }
-            return Ok("Granted");
+            return ExecuteAction(() => _arribaManagement.GrantAccessForUser(tableName, identity, scope, this.User),
+                           () => Ok("Granted"));
         }
 
         [HttpDelete("table/{tableName}/permissions/{scope}")]
@@ -199,15 +150,9 @@ namespace Arriba.Server.Controllers
             [FromQuery, Required] PermissionScope scope,
             [FromBody, Required] SecurityIdentity identity)
         {
-            try
-            {
-                _arribaManagement.RevokeAccessForUser(tableName, identity, scope, this.User);
-            }
-            catch (Exception ex)
-            {
-                return ExceptionToActionResult(ex);
-            }
-            return Ok("Granted");
+
+            return ExecuteAction(() => _arribaManagement.RevokeAccessForUser(tableName, identity, scope, this.User),
+                           () => Ok("Granted"));
         }
 
     }
