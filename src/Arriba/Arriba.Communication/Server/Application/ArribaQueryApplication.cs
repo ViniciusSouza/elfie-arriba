@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft. All rights reserved.
+﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
@@ -23,6 +23,7 @@ using Arriba.Server.Authentication;
 using Arriba.Server.Hosting;
 using Arriba.Structures;
 using System.Collections.Specialized;
+using Arriba.ParametersCheckers;
 
 namespace Arriba.Server
 {
@@ -90,6 +91,11 @@ namespace Arriba.Server
 
         private SelectResult Select(string tableName, ITelemetry telemetry, NameValueCollection parameters, IPrincipal user)
         {
+            tableName.ThrowIfNullOrWhiteSpaced(nameof(tableName));
+            ParamChecker.ThrowIfNull(telemetry, nameof(telemetry));
+            parameters.ThrowIfNullOrEmpty(nameof(parameters));
+            user.ThrowIfNull(nameof(user));
+
             var table = this.Database[tableName];
             var query = SelectQueryFromRequest(this.Database, parameters);
             SelectResult result = null;
@@ -333,6 +339,10 @@ namespace Arriba.Server
 
         private AllCountResult AllCount(ITelemetry telemetry, NameValueCollection parameters, IPrincipal user)
         {
+            ParamChecker.ThrowIfNull(telemetry, nameof(telemetry));
+            parameters.ThrowIfNullOrEmpty(nameof(parameters));
+            user.ThrowIfNull(nameof(user));
+
             string queryString = parameters["q"] ?? "";
             AllCountResult result = new AllCountResult(queryString);
 
@@ -401,6 +411,10 @@ namespace Arriba.Server
 
         private IntelliSenseResult Suggest(ITelemetry telemetry, NameValueCollection parameters, IPrincipal user)
         {
+            ParamChecker.ThrowIfNull(telemetry, nameof(telemetry));
+            parameters.ThrowIfNullOrEmpty(nameof(parameters));
+            user.ThrowIfNull(nameof(user));
+
             IntelliSenseResult result = null;
             string query = parameters["q"];
             string selectedTable = parameters["t"];
@@ -439,6 +453,11 @@ namespace Arriba.Server
 
         private T Query<T>(string tableName, ITelemetry telemetry, IQuery<T> query, IPrincipal user)
         {
+            tableName.ThrowIfNullOrWhiteSpaced(nameof(tableName));
+            ParamChecker.ThrowIfNull(telemetry, nameof(telemetry));
+            ParamChecker.ThrowIfNull(query, nameof(query));
+            user.ThrowIfNull(nameof(user));
+
             query.TableName = tableName;
 
             // Correct the query with default correctors
@@ -481,6 +500,9 @@ namespace Arriba.Server
 
         private AggregationQuery BuildAggregateFromContext(ITelemetry telemetry, NameValueCollection parameters)
         {
+            ParamChecker.ThrowIfNull(telemetry, nameof(telemetry));
+            parameters.ThrowIfNullOrEmpty(nameof(parameters));
+
             string aggregationFunction = parameters["a"] ?? "count";
             string columnName = parameters["col"];
             string queryString = parameters["q"];
@@ -521,6 +543,9 @@ namespace Arriba.Server
 
         private DistinctQuery BuildDistinctFromContext(ITelemetry telemetry, NameValueCollection parameters)
         {
+            ParamChecker.ThrowIfNull(telemetry, nameof(telemetry));
+            parameters.ThrowIfNullOrEmpty(nameof(parameters));
+
             DistinctQueryTop query = new DistinctQueryTop();
             query.Column = parameters["col"];
             if (String.IsNullOrEmpty(query.Column)) throw new ArgumentException("Distinct Column [col] must be passed.");
