@@ -1,6 +1,6 @@
 ﻿using Arriba.Model;
 using System;
-using System.Collections;
+using System.Collections.Specialized;
 using System.Security.Principal;
 
 namespace Arriba.ParametersCheckers
@@ -42,6 +42,12 @@ namespace Arriba.ParametersCheckers
 
             if (db.TableExists(tableName))
                 throw new TableAlreadyExistsException($"Table {tableName} not found");
+        }
+
+        public static void ThrowIfNullOrEmpty(this NameValueCollection value, string paramName)
+        {
+            if (value == null || value.Count == 0)
+                throw new ArgumentException("Not Provided", paramName);
         }
     }
 }
