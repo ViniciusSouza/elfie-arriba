@@ -79,7 +79,7 @@ namespace Arriba.Server
                 case "csv":
                     return ToCsvResponse(result, $"{tableName}-{DateTime.Now:yyyyMMdd}.csv");
                 case "rss":
-                    var query = SelectQueryFromRequest(this.Database, p);
+                    var query = SelectQueryFromRequest(p);
                     // If output rss only the ID column
                     query.Columns = new string[] { table.IDColumn.Name };
                     return ToRssResponse(result, "", query.TableName + ": " + query.Where, ctx.Request.ResourceParameters["iURL"]);
@@ -97,7 +97,7 @@ namespace Arriba.Server
             user.ThrowIfNull(nameof(user));
 
             var table = this.Database[tableName];
-            var query = SelectQueryFromRequest(this.Database, parameters);
+            var query = SelectQueryFromRequest(parameters);
             SelectResult result = null;
 
             // If no columns were requested get only the ID column
@@ -132,7 +132,7 @@ namespace Arriba.Server
 
         }
 
-        private SelectQuery SelectQueryFromRequest(Database db, NameValueCollection p)
+        private SelectQuery SelectQueryFromRequest(NameValueCollection p)
         {
             SelectQuery query = new SelectQuery();
 
