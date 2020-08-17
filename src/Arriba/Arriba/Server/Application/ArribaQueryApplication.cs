@@ -65,25 +65,31 @@ namespace Arriba.Server
                 return ArribaResponse.NotFound("Table not found to select from.");
             }
 
-            var result = Select(tableName, ctx, p, user);
-            var query = result.Query as SelectQuery;
-
-            // Format the result in the return format
-            switch ((outputFormat ?? "").ToLowerInvariant())
+            try
             {
-                case "":
-                case "json":
-                    return ArribaResponse.Ok(result);
-                case "csv":
-                    return ToCsvResponse(result, $"{tableName}-{DateTime.Now:yyyyMMdd}.csv");
-                case "rss":
-                    // If output rss only the ID column
-                    query.Columns = new string[] { table.IDColumn.Name };
-                    return ToRssResponse(result, "", $"{query.TableName} : {query.Where}", ctx.Request.ResourceParameters["iURL"]);
-                default:
-                    throw new ArgumentException($"OutputFormat [fmt] passed, '{outputFormat}', was invalid.");
-            }
+                var result = Select(tableName, ctx, p, user);
+                var query = result.Query as SelectQuery;
 
+                // Format the result in the return format
+                switch ((outputFormat ?? "").ToLowerInvariant())
+                {
+                    case "":
+                    case "json":
+                        return ArribaResponse.Ok(result);
+                    case "csv":
+                        return ToCsvResponse(result, $"{tableName}-{DateTime.Now:yyyyMMdd}.csv");
+                    case "rss":
+                        // If output rss only the ID column
+                        query.Columns = new string[] { table.IDColumn.Name };
+                        return ToRssResponse(result, "", $"{query.TableName} : {query.Where}", ctx.Request.ResourceParameters["iURL"]);
+                    default:
+                        throw new ArgumentException($"OutputFormat [fmt] passed, '{outputFormat}', was invalid.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return ExceptionToArribaResponse(ex);
+            }
         }
 
         private SelectResult Select(string tableName, ITelemetry telemetry, NameValueCollection parameters, IPrincipal user)
@@ -408,7 +414,16 @@ namespace Arriba.Server
         {
             NameValueCollection p = await ParametersFromQueryStringAndBody(ctx);
             var user = ctx.Request.User;
-            var result = AllCount(ctx, p, user);
+            AllCountResult result;
+
+            try
+            {
+                result = AllCount(ctx, p, user);
+            }
+            catch (Exception ex)
+            {
+                return ExceptionToArribaResponse(ex);
+            }
 
             return ArribaResponse.Ok(result);
         }
@@ -453,7 +468,17 @@ namespace Arriba.Server
         {
             NameValueCollection p = await ParametersFromQueryStringAndBody(ctx);
             IPrincipal user = ctx.Request.User;
-            var result = Suggest(ctx, p, user);
+            IntelliSenseResult result;
+
+            try
+            {
+                result = Suggest(ctx, p, user);
+            }
+            catch (Exception ex)
+            {
+                return ExceptionToArribaResponse(ex);
+            }
+
             return ArribaResponse.Ok(result);
         }
 
@@ -497,9 +522,17 @@ namespace Arriba.Server
                 return ArribaResponse.NotFound("Table not found to query.");
             }
 
-            var result = Query(tableName, ctx, wrappedQuery, user);
-            return ArribaResponse.Ok(result);
+            T result;
+            try
+            {
+                result = Query(tableName, ctx, wrappedQuery, user);
+            }
+            catch (Exception ex)
+            {
+                return ExceptionToArribaResponse(ex);
+            }
 
+            return ArribaResponse.Ok(result);
         }
 
         private async Task<IResponse> Aggregate(IRequestContext ctx, Route route)
