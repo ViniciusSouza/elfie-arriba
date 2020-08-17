@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft. All rights reserved.
+﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
@@ -93,6 +93,10 @@ namespace Arriba.Server
             parameters.ThrowIfNullOrEmpty(nameof(parameters));
             user.ThrowIfNull(nameof(user));
             Database.ThrowIfTableNotFound(tableName);
+
+            if (!ValidateTableAccessForUser(tableName, user, PermissionScope.Reader))
+                throw new ArribaAccessForbiddenException("Not authorized");
+
             var table = this.Database[tableName];
             var query = SelectQueryFromRequest(this.Database, parameters);
             SelectResult result = null;
@@ -339,6 +343,10 @@ namespace Arriba.Server
             ParamChecker.ThrowIfNull(telemetry, nameof(telemetry));
             parameters.ThrowIfNullOrEmpty(nameof(parameters));
             user.ThrowIfNull(nameof(user));
+
+            if (!ValidateDatabaseAccessForUser(user, PermissionScope.Reader))
+                throw new ArribaAccessForbiddenException("Not authorized");
+
             string queryString = parameters["q"] ?? "";
             AllCountResult result = new AllCountResult(queryString);
 
@@ -410,6 +418,10 @@ namespace Arriba.Server
             ParamChecker.ThrowIfNull(telemetry, nameof(telemetry));
             parameters.ThrowIfNullOrEmpty(nameof(parameters));
             user.ThrowIfNull(nameof(user));
+
+            if (!ValidateDatabaseAccessForUser(user, PermissionScope.Reader))
+                throw new ArribaAccessForbiddenException("Not authorized");
+
             IntelliSenseResult result = null;
             string query = parameters["q"];
             string selectedTable = parameters["t"];
@@ -453,6 +465,10 @@ namespace Arriba.Server
             ParamChecker.ThrowIfNull(query, nameof(query));
             user.ThrowIfNull(nameof(user));
             Database.ThrowIfTableNotFound(tableName);
+
+            if (!ValidateTableAccessForUser(tableName, user, PermissionScope.Reader))
+                throw new ArribaAccessForbiddenException("Not authorized");
+
             query.TableName = tableName;
 
             // Correct the query with default correctors
