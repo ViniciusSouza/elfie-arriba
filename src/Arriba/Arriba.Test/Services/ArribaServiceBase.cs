@@ -2,33 +2,33 @@
 using Arriba.Model;
 using Arriba.Model.Column;
 using Arriba.Model.Security;
+using Arriba.Monitoring;
 using Arriba.Server.Hosting;
 using Arriba.Structures;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
 using System.Security.Claims;
 using System.Security.Principal;
 
 namespace Arriba.Test.Services
 {
     [TestClass]
-    public partial class ArribaManagementServiceTests
+    public partial class ArribaServiceBase
     {
         //Without specifying a type identity.IsAuthenticated always returns false
         private const string AuthenticationType = "TestAuthenticationType";
-        private const string TableName = "Users";
+        protected const string TableName = "Users";
 
-        private readonly SecureDatabase _db;
+        protected readonly SecureDatabase _db;
 
-        private readonly ClaimsPrincipal _nonAuthenticatedUser;
-        private readonly ClaimsPrincipal _owner;
-        private readonly ClaimsPrincipal _reader;
-        private readonly ClaimsPrincipal _writer;
+        protected readonly ClaimsPrincipal _nonAuthenticatedUser;
+        protected readonly ClaimsPrincipal _owner;
+        protected readonly ClaimsPrincipal _reader;
+        protected readonly ClaimsPrincipal _writer;
 
-        private readonly IArribaManagementService _service;
-        private readonly DatabaseFactory _databaseFactory;
-        public ArribaManagementServiceTests()
+        protected readonly IArribaManagementService _service;
+        protected readonly DatabaseFactory _databaseFactory;
+        public ArribaServiceBase()
         {
             CreateTestDatabase(TableName);
 
@@ -42,6 +42,8 @@ namespace Arriba.Test.Services
 
             _service = factory.CreateArribaManagementService("Users");
             _db = _service.GetDatabaseForOwner(_owner);
+
+            _telemetry = new Telemetry(MonitorEventLevel.Verbose, "TEST", null);
         }
 
         private void CreateTestDatabase(string tableName)
@@ -79,7 +81,7 @@ namespace Arriba.Test.Services
             db.SaveSecurity(tableName);
         }
 
-        private void DeleteTable(SecureDatabase db, string tableName)
+        protected void DeleteTable(SecureDatabase db, string tableName)
         {
             if (db.TableExists(tableName))
                 db.DropTable(tableName);
@@ -103,43 +105,9 @@ namespace Arriba.Test.Services
             return user;
         }
 
-        private void CheckTableColumnsQuantity(string tableName, int expected)
-        {
-            var table = _db[tableName];
-
-            Assert.AreEqual(expected, table.ColumnDetails.Count);
-        }
-
-        private void AddColumnsToTableForUser(string tableName, IPrincipal user)
-        {
-            CheckTableColumnsQuantity(tableName, 2);
-            var columnList = GetColumnDetailsList();
-            _service.AddColumnsToTableForUser(tableName, columnList, user);
-            CheckTableColumnsQuantity(tableName, 3);
-        }
-
-        private static List<ColumnDetails> GetColumnDetailsList()
-        {
-            var columnList = new List<ColumnDetails>();
-            columnList.Add(new ColumnDetails("Column", "string", ""));
-            return columnList;
-        }
-
-        private void DeleteTableForUser(string tableName, IPrincipal user)
+        protected void DeleteTableForUser(string tableName, IPrincipal user)
         {
             _service.DeleteTableForUser(tableName, user);
-        }
-
-        private int GetPermissionScopeQuantity(string tableName, PermissionScope permissionScope)
-        {
-            var security = _db.Security(tableName);
-            switch (permissionScope)
-            {
-                case PermissionScope.Reader: return security.Readers.Count;
-                case PermissionScope.Writer: return security.Writers.Count;
-                case PermissionScope.Owner: return security.Owners.Count;
-            }
-            throw new ArribaException("Permission Scope not handled!");
         }
 
     }
