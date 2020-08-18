@@ -47,8 +47,8 @@ namespace Arriba.Composition
     internal class ArribaQueryApplicationExport : ArribaQueryApplication
     {
         [ImportingConstructor]
-        public ArribaQueryApplicationExport(DatabaseFactory f, ClaimsAuthenticationService auth)
-            : base(f, auth)
+        public ArribaQueryApplicationExport(DatabaseFactory f, ClaimsAuthenticationService auth, IArribaQueryServices queryServices)
+            : base(f, auth, queryServices)
         { }
     }
 
