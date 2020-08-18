@@ -20,10 +20,14 @@ namespace Arriba.ParametersCheckers
                 throw new ArgumentNullException(paramName);
         }
 
-        public static void ThrowIfNullOrWhiteSpaced(this string value, string paramName)
+        public static void ThrowIfNullOrWhiteSpaced(this string value, string paramName, string message = null)
         {
             if (string.IsNullOrWhiteSpace(value))
-                throw new ArgumentException("Not Provided", paramName);
+            {
+                if (string.IsNullOrWhiteSpace(message))
+                    throw new ArgumentException("Not Provided", paramName);
+                throw new ArgumentException(message);
+            }
         }
 
         public static void ThrowIfTableNotFound(this Database db, string tableName)
