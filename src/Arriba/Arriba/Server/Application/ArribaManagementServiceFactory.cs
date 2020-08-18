@@ -21,14 +21,28 @@ namespace Arriba.Communication.Server.Application
             _claimsAuth = claims;
         }
 
-        public IArribaManagementService CreateArribaManagementService(string userAliasCorrectorTable = "")
+        private ComposedCorrector GetComposedCorrectors(ref string userAliasCorrectorTable)
         {
             if (string.IsNullOrWhiteSpace(userAliasCorrectorTable))
                 userAliasCorrectorTable = Table_People;
 
             var correctors = new ComposedCorrector(new TodayCorrector(), new UserAliasCorrector(secureDatabase[userAliasCorrectorTable]));
+            return correctors;
+        }
+
+        public IArribaManagementService CreateArribaManagementService(string userAliasCorrectorTable = "")
+        {
+            var correctors = GetComposedCorrectors(ref userAliasCorrectorTable);
 
             return new ArribaManagementService(secureDatabase, correctors, _claimsAuth);
         }
+
+        public IArribaQueryServices CreateArribaQueryService(string userAliasCorrectorTable = "")
+        {
+            var correctors = GetComposedCorrectors(ref userAliasCorrectorTable);
+
+            return new ArribaQueryServices(secureDatabase, correctors, _claimsAuth);
+        }
+
     }
 }
