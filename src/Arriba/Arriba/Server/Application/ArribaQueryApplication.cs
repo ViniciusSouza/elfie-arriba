@@ -34,16 +34,16 @@ namespace Arriba.Server
             _service = queryServices;
 
             // /table/foo?type=select
-            this.GetAsync(new RouteSpecification("/table/:tableName", new UrlParameter("action", "select")), this.ValidateReadAccessAsync, this.Select);
-            this.PostAsync(new RouteSpecification("/table/:tableName", new UrlParameter("action", "select")), this.ValidateReadAccessAsync, this.Select);
+            this.GetAsync(new RouteSpecification("/table/:tableName", new UrlParameter("action", "select")), this.Select);
+            this.PostAsync(new RouteSpecification("/table/:tableName", new UrlParameter("action", "select")), this.Select);
 
             // /table/foo?type=distinct
-            this.GetAsync(new RouteSpecification("/table/:tableName", new UrlParameter("action", "distinct")), this.ValidateReadAccessAsync, this.Distinct);
-            this.PostAsync(new RouteSpecification("/table/:tableName", new UrlParameter("action", "distinct")), this.ValidateReadAccessAsync, this.Distinct);
+            this.GetAsync(new RouteSpecification("/table/:tableName", new UrlParameter("action", "distinct")), this.Distinct);
+            this.PostAsync(new RouteSpecification("/table/:tableName", new UrlParameter("action", "distinct")), this.Distinct);
 
             // /table/foo?type=aggregate
-            this.GetAsync(new RouteSpecification("/table/:tableName", new UrlParameter("action", "aggregate")), this.ValidateReadAccessAsync, this.Aggregate);
-            this.PostAsync(new RouteSpecification("/table/:tableName", new UrlParameter("action", "aggregate")), this.ValidateReadAccessAsync, this.Aggregate);
+            this.GetAsync(new RouteSpecification("/table/:tableName", new UrlParameter("action", "aggregate")), this.Aggregate);
+            this.PostAsync(new RouteSpecification("/table/:tableName", new UrlParameter("action", "aggregate")), this.Aggregate);
 
             this.GetAsync(new RouteSpecification("/allCount"), this.AllCount);
             this.GetAsync(new RouteSpecification("/suggest"), this.Suggest);
