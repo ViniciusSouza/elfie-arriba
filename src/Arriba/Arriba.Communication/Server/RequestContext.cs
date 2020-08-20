@@ -16,27 +16,14 @@ namespace Arriba.Communication
 {
     internal class RequestContext : IRequestContext
     {
-        private List<MonitorEventScope> _events = new List<MonitorEventScope>();
-        private EventPublisherSource _eventSource;
-        private static readonly JsonSerializerSettings s_jsonSettings = new JsonSerializerSettings()
-        {
-            ContractResolver = new CamelCasePropertyNamesContractResolver()
-        };
+        private readonly ITelemetry _telemetry;
 
         private IRequest _request;
 
         public RequestContext(IRequest request)
         {
-            MonitorEventEntry defaults = new MonitorEventEntry()
-            {
-                Level = MonitorEventLevel.Verbose,
-                Source = "HTTP",
-                User = request.User.Identity.Name,
-                Detail = null
-            };
-
+            _telemetry = new Telemetry(MonitorEventLevel.Verbose, "HTTP", null);
             _request = request;
-            _eventSource = EventPublisher.CreateEventSource(defaults);
         }
 
         public IRequest Request
@@ -51,25 +38,17 @@ namespace Arriba.Communication
         {
             get
             {
-                return _events.GroupBy(e => e.Start.Name)
+                return _telemetry.MonitorEvents().GroupBy(e => e.Start.Name)
                                   .ToDictionary(e => e.Key, e => e.Sum(s => s.Stop == null ? s.CurrentRuntime : s.Stop.RuntimeMilliseconds), StringComparer.OrdinalIgnoreCase);
             }
         }
 
         public IDisposable Monitor(MonitorEventLevel level, string name, string type = null, string identity = null, object detail = null)
         {
-            // TODO: Consider making detail evaluation lazy. 
-            string detailValue = String.Empty;
-
-            if (detail != null)
-            {
-                // Attempt to serialize  
-                detailValue = JsonConvert.SerializeObject(detail, s_jsonSettings);
-            }
-
-            var evt = _eventSource.RaiseScope(level: level, entityType: type, entityIdentity: identity, name: name, detail: detailValue);
-            _events.Add(evt);
-            return evt;
+            return _telemetry.Monitor(level, name, type, identity, detail);
         }
+
+        public List<MonitorEventScope> MonitorEvents() => _telemetry.MonitorEvents();
+
     }
 }
