@@ -1,4 +1,5 @@
-﻿using Arriba.Communication.Server.Application;
+using Arriba.Communication;
+using Arriba.Communication.Server.Application;
 using Arriba.Model;
 using Arriba.Model.Column;
 using Arriba.Model.Security;
@@ -19,6 +20,7 @@ namespace Arriba.Test.Services
         private const string AuthenticationType = "TestAuthenticationType";
         protected const string TableName = "Users";
 
+        protected ArribaManagementServiceFactory serviceFactory;
         protected readonly SecureDatabase _db;
 
         protected readonly ClaimsPrincipal _nonAuthenticatedUser;
@@ -28,6 +30,8 @@ namespace Arriba.Test.Services
 
         protected readonly IArribaManagementService _service;
         protected readonly DatabaseFactory _databaseFactory;
+        protected readonly ITelemetry _telemetry;
+        
         public ArribaServiceBase()
         {
             CreateTestDatabase(TableName);
@@ -38,9 +42,9 @@ namespace Arriba.Test.Services
             _owner = GetAuthenticatedUser("user3", PermissionScope.Owner);
 
             _databaseFactory = new DatabaseFactory();
-            var factory = new ArribaManagementServiceFactory(_databaseFactory.GetDatabase());
+            serviceFactory = new ArribaManagementServiceFactory(_databaseFactory.GetDatabase());
 
-            _service = factory.CreateArribaManagementService("Users");
+            _service = serviceFactory.CreateArribaManagementService("Users");
             _db = _service.GetDatabaseForOwner(_owner);
 
             _telemetry = new Telemetry(MonitorEventLevel.Verbose, "TEST", null);
