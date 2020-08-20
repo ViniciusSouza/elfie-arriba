@@ -44,7 +44,7 @@ namespace Arriba.Test.Services
             _owner = GetAuthenticatedUser("user3", PermissionScope.Owner);
 
             _databaseFactory = new DatabaseFactory();
-            serviceFactory = new ArribaManagementServiceFactory(_databaseFactory.GetDatabase(), new ClaimsAuthenticationService(new MemoryCacheFactory()));
+            serviceFactory = new ArribaManagementServiceFactory(_databaseFactory, new ClaimsAuthenticationService(new MemoryCacheFactory()));
 
             _service = serviceFactory.CreateArribaManagementService("Users");
             _db = _service.GetDatabaseForOwner(_owner);

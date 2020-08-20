@@ -2,6 +2,7 @@
 using Arriba.Model.Correctors;
 using Arriba.ParametersCheckers;
 using Arriba.Server.Authentication;
+using Arriba.Server.Hosting;
 
 namespace Arriba.Communication.Server.Application
 {
@@ -10,14 +11,16 @@ namespace Arriba.Communication.Server.Application
         private const string Table_People = "People";
 
         private readonly SecureDatabase secureDatabase;
+        private readonly DatabaseFactory factory;
         private readonly ClaimsAuthenticationService _claimsAuth;
 
-        public ArribaManagementServiceFactory(SecureDatabase secureDatabase, ClaimsAuthenticationService claims)
+        public ArribaManagementServiceFactory(DatabaseFactory factory, ClaimsAuthenticationService claims)
         {
-            ParamChecker.ThrowIfNull(secureDatabase, nameof(secureDatabase));
+            ParamChecker.ThrowIfNull(factory, nameof(factory));
             ParamChecker.ThrowIfNull(claims, nameof(claims));
 
-            this.secureDatabase = secureDatabase;
+            this.factory = factory;
+            this.secureDatabase = factory.GetDatabase();
             _claimsAuth = claims;
         }
 
@@ -41,7 +44,7 @@ namespace Arriba.Communication.Server.Application
         {
             var correctors = GetComposedCorrectors(ref userAliasCorrectorTable);
 
-            return new ArribaQueryServices(secureDatabase, correctors, _claimsAuth);
+            return new ArribaQueryServices(factory, correctors, _claimsAuth);
         }
 
     }

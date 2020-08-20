@@ -1,4 +1,4 @@
-﻿using Arriba.Communication.Server.Authorization;
+using Arriba.Communication.Server.Authorization;
 using Arriba.Model;
 using Arriba.Model.Correctors;
 using Arriba.Model.Expressions;
@@ -7,6 +7,7 @@ using Arriba.Model.Security;
 using Arriba.Monitoring;
 using Arriba.ParametersCheckers;
 using Arriba.Server.Authentication;
+using Arriba.Server.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -21,9 +22,9 @@ namespace Arriba.Communication.Server.Application
         private readonly IArribaAuthorization _arribaAuthorization;
         private readonly ICorrector _correctors;
 
-        public ArribaQueryServices(SecureDatabase secureDatabase, ICorrector composedCorrector, ClaimsAuthenticationService claims)
+        public ArribaQueryServices(DatabaseFactory factory, ICorrector composedCorrector, ClaimsAuthenticationService claims)
         {
-            _database = secureDatabase;
+            _database = factory.GetDatabase();
             _arribaAuthorization = new ArribaAuthorization(_database, claims);
             _correctors = composedCorrector;
         }

@@ -47,8 +47,8 @@ namespace Arriba.Composition
     class ArribaManagementQueryExport : ArribaQueryServices
     {
         [ImportingConstructor]
-        public ArribaManagementQueryExport(SecureDatabase secureDatabase, ICorrector corrector, ClaimsAuthenticationService claims)
-            : base(secureDatabase, corrector, claims)
+        public ArribaManagementQueryExport(DatabaseFactory databaseFactory, ICorrector corrector, ClaimsAuthenticationService claims)
+            : base(databaseFactory, corrector, claims)
         {
         }
     }
