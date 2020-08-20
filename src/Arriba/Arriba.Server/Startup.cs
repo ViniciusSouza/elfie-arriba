@@ -6,6 +6,7 @@ using Arriba.Communication;
 using Arriba.Communication.Server.Application;
 using Arriba.Configuration;
 using Arriba.Extensions;
+using Arriba.Monitoring;
 using Arriba.Owin;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -45,6 +46,8 @@ namespace Arriba.Server
 
             services.AddOAuth(serverConfig);
             services.AddSingleton(GetArribaManagementService());
+            services.AddSingleton(new Telemetry(MonitorEventLevel.Verbose, "HTTP", null));
+            services.AddSingleton(GetArribaQueryService());
             services.AddSingleton<IArribaServerConfiguration>((_) => serverConfig);
             services.AddSingleton((_) => serverConfig.OAuthConfig);
             services.AddControllers();
@@ -72,6 +75,12 @@ namespace Arriba.Server
                 if (serverConfig.EnabledAuthentication)
                     fallback.RequireAuthorization();
             });
+        }
+
+        private IArribaQueryServices GetArribaQueryService()
+        {
+            var host = GetArribaHost();
+            return host.GetService<IArribaQueryServices>();
         }
 
         private IArribaManagementService GetArribaManagementService()
