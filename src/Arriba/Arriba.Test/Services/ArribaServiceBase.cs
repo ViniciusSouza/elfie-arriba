@@ -19,8 +19,7 @@ namespace Arriba.Test.Services
         //Without specifying a type identity.IsAuthenticated always returns false
         private const string AuthenticationType = "TestAuthenticationType";
         protected const string TableName = "Users";
-
-        protected ArribaManagementServiceFactory serviceFactory;
+        
         protected readonly SecureDatabase _db;
 
         protected readonly ClaimsPrincipal _nonAuthenticatedUser;
@@ -29,8 +28,8 @@ namespace Arriba.Test.Services
         protected readonly ClaimsPrincipal _writer;
 
         protected readonly IArribaManagementService _service;
-        protected readonly DatabaseFactory _databaseFactory;
         protected readonly ITelemetry _telemetry;
+        protected readonly Host _host;
         
         public ArribaServiceBase()
         {
@@ -41,13 +40,19 @@ namespace Arriba.Test.Services
             _writer = GetAuthenticatedUser("user2", PermissionScope.Writer);
             _owner = GetAuthenticatedUser("user3", PermissionScope.Owner);
 
-            _databaseFactory = new DatabaseFactory();
-            serviceFactory = new ArribaManagementServiceFactory(_databaseFactory.GetDatabase());
+            _host = GetArribaHost();
 
-            _service = serviceFactory.CreateArribaManagementService("Users");
+            _service = _host.GetService<IArribaManagementService>();
             _db = _service.GetDatabaseForOwner(_owner);
 
             _telemetry = new Telemetry(MonitorEventLevel.Verbose, "TEST", null);
+        }
+
+        private Host GetArribaHost()
+        {
+            var host = new Host();            
+            host.Compose();
+            return host;
         }
 
         private void CreateTestDatabase(string tableName)
