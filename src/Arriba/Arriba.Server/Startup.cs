@@ -46,7 +46,7 @@ namespace Arriba.Server
 
             services.AddOAuth(serverConfig);
             services.AddSingleton(GetArribaManagementService());
-            services.AddSingleton(new Telemetry(MonitorEventLevel.Verbose, "HTTP", null));
+            services.AddSingleton<ITelemetry>(new Telemetry(MonitorEventLevel.Verbose, "HTTP", null));
             services.AddSingleton(GetArribaQueryService());
             services.AddSingleton<IArribaServerConfiguration>((_) => serverConfig);
             services.AddSingleton((_) => serverConfig.OAuthConfig);
