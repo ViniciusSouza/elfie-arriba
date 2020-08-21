@@ -14,7 +14,8 @@ namespace Arriba.Test.Services
         private readonly NameValueCollection parameters = new NameValueCollection();
         public ArribaQueryServicesTests() : base()
         {
-            _queryService = serviceFactory.CreateArribaQueryService();
+            _queryService = _host.GetService<IArribaQueryServices>();
+
         }
     }
 }
