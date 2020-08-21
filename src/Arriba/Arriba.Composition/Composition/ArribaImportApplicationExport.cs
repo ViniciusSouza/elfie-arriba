@@ -43,13 +43,14 @@ namespace Arriba.Composition
         }
     }
 
-    [Export(typeof(IRoutedApplication))]
-    internal class ArribaQueryApplicationExport : ArribaQueryApplication
+    [Export(typeof(IArribaQueryServices)), Shared]
+    class ArribaManagementQueryExport : ArribaQueryServices
     {
         [ImportingConstructor]
-        public ArribaQueryApplicationExport(DatabaseFactory f, ClaimsAuthenticationService auth, IArribaQueryServices queryServices)
-            : base(f, auth, queryServices)
-        { }
+        public ArribaManagementQueryExport(SecureDatabase secureDatabase, ICorrector corrector, ClaimsAuthenticationService claims)
+            : base(secureDatabase, corrector, claims)
+        {
+        }
     }
 
     [Export(typeof(IRoutedApplication))]
@@ -60,6 +61,15 @@ namespace Arriba.Composition
             : base(f, auth, managementService)
         {
         }
+    }
+
+    [Export(typeof(IRoutedApplication))]
+    internal class ArribaQueryApplicationExport : ArribaQueryApplication
+    {
+        [ImportingConstructor]
+        public ArribaQueryApplicationExport(DatabaseFactory f, ClaimsAuthenticationService auth, IArribaQueryServices queryServices)
+            : base(f, auth, queryServices)
+        { }
     }
 
     [Export(typeof(IObjectCacheFactory))]
